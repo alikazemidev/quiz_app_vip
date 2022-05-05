@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quiz_vip_flutter/models/question.dart';
+import 'package:quiz_vip_flutter/screens/result_screen.dart';
 
 class QuizPage extends StatefulWidget {
   static const routeName = '/quiz_page';
@@ -11,6 +12,8 @@ class QuizPage extends StatefulWidget {
 
 class _QuizPageState extends State<QuizPage> {
   int shownQuestionIndex = 0;
+  bool isFinalAnswerSubmited = false;
+  int correctAnswer = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +23,7 @@ class _QuizPageState extends State<QuizPage> {
         elevation: 0,
         backgroundColor: Colors.indigo[800],
         title: Text(
-          'صفحه بازی',
+          'سوال ${shownQuestionIndex + 1} / ${questionList.length} ',
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
@@ -35,23 +38,32 @@ class _QuizPageState extends State<QuizPage> {
               'images/${questionList[shownQuestionIndex].imageUrl}.png',
               height: 300,
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 20),
             Text(
               questionList[shownQuestionIndex].questionTitle.toString(),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18),
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 20),
             ...List.generate(
               4,
               (index) => ListTile(
                 onTap: (() {
-                  setState(() {
-                    shownQuestionIndex += 1;
-                    if (shownQuestionIndex > 1) {
-                      shownQuestionIndex = 0;
-                    }
-                  });
+                  setState(
+                    () {
+                      if (index ==
+                          questionList[shownQuestionIndex].correctAnswer) {
+                        correctAnswer += 1;
+                      }
+                      if (shownQuestionIndex == questionList.length - 1) {
+                        isFinalAnswerSubmited = true;
+                      }
+
+                      if (shownQuestionIndex < questionList.length - 1) {
+                        shownQuestionIndex += 1;
+                      }
+                    },
+                  );
                 }),
                 title: Text(
                   questionList[shownQuestionIndex].answerList![index],
@@ -59,35 +71,31 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
             ),
-            // ListTile(
-            //   onTap: () {
-            //     setState(() {
-            //       shownQuestionIndex += 1;
-            //     });
-            //   },
-            //   title: Text(
-            //     questionList[shownQuestionIndex].answerList![0],
-            //     textAlign: TextAlign.end,
-            //   ),
-            // ),
-            // ListTile(
-            //   title: Text(
-            //     questionList[shownQuestionIndex].answerList![1],
-            //     textAlign: TextAlign.end,
-            //   ),
-            // ),
-            // ListTile(
-            //   title: Text(
-            //     questionList[shownQuestionIndex].answerList![2],
-            //     textAlign: TextAlign.end,
-            //   ),
-            // ),
-            // ListTile(
-            //   title: Text(
-            //     questionList[shownQuestionIndex].answerList![3],
-            //     textAlign: TextAlign.end,
-            //   ),
-            // ),
+            isFinalAnswerSubmited
+                ? ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.red[700],
+                      minimumSize: Size(200, 50),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ResultScreen(res: correctAnswer),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'مشاهده نتیجه',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  )
+                : SizedBox(),
           ],
         ),
       ),
